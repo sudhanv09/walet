@@ -1,18 +1,18 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "io.github.sudhanv09"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "io.github.sudhanv09"
         minSdk = 29
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -46,6 +46,19 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+    
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
+    
+    implementation(libs.navigation.compose)
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.coil.compose)
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
