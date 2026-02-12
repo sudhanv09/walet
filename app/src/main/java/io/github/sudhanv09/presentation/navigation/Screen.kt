@@ -21,6 +21,15 @@ data class AccountDetail(val accountId: Long)
 object Categories
 
 @Serializable
+object AddCategory
+
+@Serializable
+data class EditCategory(val categoryId: Long)
+
+@Serializable
+object Transactions
+
+@Serializable
 object AddTransaction
 
 @Serializable

@@ -1,27 +1,43 @@
 package io.github.sudhanv09.presentation.home
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import io.github.sudhanv09.presentation.accounts.AccountsViewModel
 import io.github.sudhanv09.presentation.common.AppTopBar
+import io.github.sudhanv09.presentation.common.CurrencyFormatter
 import io.github.sudhanv09.ui.theme.WaletTheme
 
 @Composable
 fun HomeScreen(
     onNavigateToAccounts: () -> Unit,
-    onNavigateToAddTransaction: () -> Unit
+    onNavigateToTransactions: () -> Unit,
+    onNavigateToCategories: () -> Unit,
+    onNavigateToAddTransaction: () -> Unit,
+    accountsViewModel: AccountsViewModel = hiltViewModel()
 ) {
+    val accounts by accountsViewModel.accounts.collectAsState()
+    val totalBalance = accounts.sumOf { it.balance }
+
     Scaffold(
         topBar = {
             AppTopBar(title = "Walet")
@@ -31,7 +47,8 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -46,8 +63,52 @@ fun HomeScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Button(onClick = onNavigateToAccounts) {
+            if (accounts.isNotEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Total Balance",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = CurrencyFormatter.format(totalBalance),
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            Button(
+                onClick = onNavigateToAddTransaction,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Add Transaction")
+            }
+
+            Button(
+                onClick = onNavigateToTransactions,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("View Transactions")
+            }
+
+            OutlinedButton(
+                onClick = onNavigateToAccounts,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text("Manage Accounts")
+            }
+
+            OutlinedButton(
+                onClick = onNavigateToCategories,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Manage Categories")
             }
         }
     }
@@ -59,6 +120,8 @@ fun HomeScreenPreview() {
     WaletTheme {
         HomeScreen(
             onNavigateToAccounts = {},
+            onNavigateToTransactions = {},
+            onNavigateToCategories = {},
             onNavigateToAddTransaction = {}
         )
     }

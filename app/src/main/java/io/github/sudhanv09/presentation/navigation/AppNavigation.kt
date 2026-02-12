@@ -9,7 +9,12 @@ import androidx.navigation.toRoute
 import io.github.sudhanv09.presentation.accounts.AccountDetailScreen
 import io.github.sudhanv09.presentation.accounts.AccountsScreen
 import io.github.sudhanv09.presentation.accounts.AddEditAccountScreen
+import io.github.sudhanv09.presentation.categories.AddEditCategoryScreen
+import io.github.sudhanv09.presentation.categories.CategoriesScreen
 import io.github.sudhanv09.presentation.home.HomeScreen
+import io.github.sudhanv09.presentation.transactions.AddTransactionScreen
+import io.github.sudhanv09.presentation.transactions.TransactionDetailScreen
+import io.github.sudhanv09.presentation.transactions.TransactionListScreen
 
 @Composable
 fun AppNavigation(
@@ -22,7 +27,9 @@ fun AppNavigation(
         composable<Home> {
             HomeScreen(
                 onNavigateToAccounts = { navController.navigate(Accounts) },
-                onNavigateToAddTransaction = { }
+                onNavigateToTransactions = { navController.navigate(Transactions) },
+                onNavigateToCategories = { navController.navigate(Categories) },
+                onNavigateToAddTransaction = { navController.navigate(AddTransaction) }
             )
         }
 
@@ -57,6 +64,42 @@ fun AppNavigation(
             val route: EditAccount = backStackEntry.toRoute()
             AddEditAccountScreen(
                 accountId = route.accountId,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<Categories> {
+            CategoriesScreen(
+                onNavigateToAddCategory = { navController.navigate(AddCategory) }
+            )
+        }
+
+        composable<AddCategory> {
+            AddEditCategoryScreen(
+                categoryId = null,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<Transactions> {
+            TransactionListScreen(
+                onNavigateToAddTransaction = { navController.navigate(AddTransaction) },
+                onNavigateToTransactionDetail = { transactionId ->
+                    navController.navigate(TransactionDetail(transactionId))
+                }
+            )
+        }
+
+        composable<AddTransaction> {
+            AddTransactionScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<TransactionDetail> { backStackEntry ->
+            val route: TransactionDetail = backStackEntry.toRoute()
+            TransactionDetailScreen(
+                transactionId = route.transactionId,
                 onNavigateBack = { navController.popBackStack() }
             )
         }
