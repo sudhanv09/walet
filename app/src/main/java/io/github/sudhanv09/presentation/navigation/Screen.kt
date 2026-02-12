@@ -39,10 +39,16 @@ data class TransactionDetail(val transactionId: Long)
 object Goals
 
 @Serializable
+object AddGoal
+
+@Serializable
 data class GoalDetail(val goalId: Long)
 
 @Serializable
 object SavingBuckets
+
+@Serializable
+object AddSavingBucket
 
 @Serializable
 data class SavingBucketDetail(val bucketId: Long)

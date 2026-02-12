@@ -32,6 +32,8 @@ fun HomeScreen(
     onNavigateToAccounts: () -> Unit,
     onNavigateToTransactions: () -> Unit,
     onNavigateToCategories: () -> Unit,
+    onNavigateToGoals: () -> Unit,
+    onNavigateToSavingBuckets: () -> Unit,
     onNavigateToAddTransaction: () -> Unit,
     accountsViewModel: AccountsViewModel = hiltViewModel()
 ) {
@@ -110,6 +112,20 @@ fun HomeScreen(
             ) {
                 Text("Manage Categories")
             }
+
+            OutlinedButton(
+                onClick = onNavigateToGoals,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Goals")
+            }
+
+            OutlinedButton(
+                onClick = onNavigateToSavingBuckets,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Saving Buckets")
+            }
         }
     }
 }
@@ -122,6 +138,8 @@ fun HomeScreenPreview() {
             onNavigateToAccounts = {},
             onNavigateToTransactions = {},
             onNavigateToCategories = {},
+            onNavigateToGoals = {},
+            onNavigateToSavingBuckets = {},
             onNavigateToAddTransaction = {}
         )
     }

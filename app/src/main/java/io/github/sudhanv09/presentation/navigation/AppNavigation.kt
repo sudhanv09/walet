@@ -15,6 +15,12 @@ import io.github.sudhanv09.presentation.home.HomeScreen
 import io.github.sudhanv09.presentation.transactions.AddTransactionScreen
 import io.github.sudhanv09.presentation.transactions.TransactionDetailScreen
 import io.github.sudhanv09.presentation.transactions.TransactionListScreen
+import io.github.sudhanv09.presentation.goals.AddEditGoalScreen
+import io.github.sudhanv09.presentation.goals.GoalDetailScreen
+import io.github.sudhanv09.presentation.goals.GoalsScreen
+import io.github.sudhanv09.presentation.savings.AddEditSavingBucketScreen
+import io.github.sudhanv09.presentation.savings.SavingBucketDetailScreen
+import io.github.sudhanv09.presentation.savings.SavingBucketsScreen
 
 @Composable
 fun AppNavigation(
@@ -29,6 +35,8 @@ fun AppNavigation(
                 onNavigateToAccounts = { navController.navigate(Accounts) },
                 onNavigateToTransactions = { navController.navigate(Transactions) },
                 onNavigateToCategories = { navController.navigate(Categories) },
+                onNavigateToGoals = { navController.navigate(Goals) },
+                onNavigateToSavingBuckets = { navController.navigate(SavingBuckets) },
                 onNavigateToAddTransaction = { navController.navigate(AddTransaction) }
             )
         }
@@ -100,6 +108,54 @@ fun AppNavigation(
             val route: TransactionDetail = backStackEntry.toRoute()
             TransactionDetailScreen(
                 transactionId = route.transactionId,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<Goals> {
+            GoalsScreen(
+                onNavigateToAddGoal = { navController.navigate(AddGoal) },
+                onNavigateToGoalDetail = { goalId ->
+                    navController.navigate(GoalDetail(goalId))
+                }
+            )
+        }
+
+        composable<AddGoal> {
+            AddEditGoalScreen(
+                goalId = null,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<GoalDetail> { backStackEntry ->
+            val route: GoalDetail = backStackEntry.toRoute()
+            GoalDetailScreen(
+                goalId = route.goalId,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<SavingBuckets> {
+            SavingBucketsScreen(
+                onNavigateToAddBucket = { navController.navigate(AddSavingBucket) },
+                onNavigateToBucketDetail = { bucketId ->
+                    navController.navigate(SavingBucketDetail(bucketId))
+                }
+            )
+        }
+
+        composable<AddSavingBucket> {
+            AddEditSavingBucketScreen(
+                bucketId = null,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<SavingBucketDetail> { backStackEntry ->
+            val route: SavingBucketDetail = backStackEntry.toRoute()
+            SavingBucketDetailScreen(
+                bucketId = route.bucketId,
                 onNavigateBack = { navController.popBackStack() }
             )
         }
