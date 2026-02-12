@@ -9,7 +9,7 @@ data class Account(
     val name: String,
     val type: AccountType,
     val balance: Double,
-    val color: Int,
+    val color: Long,
     val icon: String? = null,
     val creditLimit: Double? = null,
     val billingDate: Int? = null,

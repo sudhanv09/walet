@@ -12,6 +12,9 @@ object Accounts
 object AddAccount
 
 @Serializable
+data class EditAccount(val accountId: Long)
+
+@Serializable
 data class AccountDetail(val accountId: Long)
 
 @Serializable

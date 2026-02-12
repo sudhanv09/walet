@@ -2,6 +2,7 @@ package io.github.sudhanv09.data.local.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import io.github.sudhanv09.data.local.dao.AccountDao
 import io.github.sudhanv09.data.local.dao.CategoryDao
 import io.github.sudhanv09.data.local.dao.GoalDao
@@ -23,6 +24,7 @@ import io.github.sudhanv09.data.local.entity.TransactionEntity
     ],
     version = 1
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun accountDao(): AccountDao
     abstract fun categoryDao(): CategoryDao
