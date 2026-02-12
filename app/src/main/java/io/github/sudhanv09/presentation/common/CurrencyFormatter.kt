@@ -7,7 +7,8 @@ import java.util.Locale
 
 object CurrencyFormatter {
     private val formatter: DecimalFormat = NumberFormat.getCurrencyInstance(Locale.getDefault()) as DecimalFormat
-    
+    val currencySymbol: String = Currency.getInstance(Locale.getDefault()).symbol
+
     init {
         formatter.applyPattern("¤#,##0.00")
     }
@@ -19,9 +20,5 @@ object CurrencyFormatter {
     fun formatWithoutSymbol(amount: Double): String {
         val cleanFormatter = DecimalFormat("#,##0.00")
         return cleanFormatter.format(amount)
-    }
-
-    fun getCurrencySymbol(): String {
-        return Currency.getInstance(Locale.getDefault()).symbol
     }
 }
