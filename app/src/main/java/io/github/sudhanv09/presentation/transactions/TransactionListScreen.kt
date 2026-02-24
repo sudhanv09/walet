@@ -76,7 +76,7 @@ private fun TransactionListScreenContent(
     onNavigateToAddTransaction: () -> Unit,
     onNavigateToTransactionDetail: (Long) -> Unit
 ) {
-    val monthOptions = remember { last12Months() }
+    val monthOptions = remember { monthsAroundCurrent(pastMonths = 60, futureMonths = 24) }
     var selectedMonth by remember { mutableStateOf(YearMonth.now()) }
     val monthLabelFormatter = remember { DateTimeFormatter.ofPattern("MMM yyyy", Locale.getDefault()) }
     val selectedMonthTransactions = transactions.filter { transactionYearMonth(it.dateTime) == selectedMonth }
@@ -92,54 +92,46 @@ private fun TransactionListScreenContent(
             }
         }
     ) { padding ->
-        if (transactions.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("No transactions yet.")
-                    Text("Tap + to add your first transaction.")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            ScrollableTabRow(selectedTabIndex = selectedTabIndex) {
+                monthOptions.forEach { month ->
+                    Tab(
+                        selected = month == selectedMonth,
+                        onClick = { selectedMonth = month },
+                        text = { Text(month.format(monthLabelFormatter)) }
+                    )
                 }
             }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                ScrollableTabRow(selectedTabIndex = selectedTabIndex) {
-                    monthOptions.forEach { month ->
-                        Tab(
-                            selected = month == selectedMonth,
-                            onClick = { selectedMonth = month },
-                            text = { Text(month.format(monthLabelFormatter)) }
-                        )
-                    }
-                }
 
-                if (selectedMonthTransactions.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
+            if (selectedMonthTransactions.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = "No transactions in ${selectedMonth.format(monthLabelFormatter)}.",
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        Text(
+                            text = "Tap + to add one.",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
-                } else {
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items(selectedMonthTransactions, key = { it.id }) { transaction ->
-                            val category = categories.find { it.id == transaction.categoryId }
-                            TransactionItem(
-                                transaction = transaction,
-                                category = category,
-                                onClick = { onNavigateToTransactionDetail(transaction.id) }
-                            )
-                        }
+                }
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(selectedMonthTransactions, key = { it.id }) { transaction ->
+                        val category = categories.find { it.id == transaction.categoryId }
+                        TransactionItem(
+                            transaction = transaction,
+                            category = category,
+                            onClick = { onNavigateToTransactionDetail(transaction.id) }
+                        )
                     }
                 }
             }
@@ -147,9 +139,9 @@ private fun TransactionListScreenContent(
     }
 }
 
-private fun last12Months(): List<YearMonth> {
+private fun monthsAroundCurrent(pastMonths: Int, futureMonths: Int): List<YearMonth> {
     val currentMonth = YearMonth.now()
-    return (11 downTo 0).map { offset -> currentMonth.minusMonths(offset.toLong()) }
+    return (-pastMonths..futureMonths).map { offset -> currentMonth.plusMonths(offset.toLong()) }
 }
 
 private fun transactionYearMonth(timestamp: Long): YearMonth {
