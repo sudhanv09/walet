@@ -19,10 +19,8 @@ import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -74,7 +72,6 @@ fun AddEditAccountScreen(
     var billingDate by remember { mutableStateOf("") }
     var isDefault by remember { mutableStateOf(false) }
 
-    var typeExpanded by remember { mutableStateOf(false) }
     var showValidation by remember { mutableStateOf(false) }
     var hasInitializedEditState by remember(accountId) { mutableStateOf(false) }
 
@@ -128,39 +125,30 @@ fun AddEditAccountScreen(
                 singleLine = true
             )
 
-            ExposedDropdownMenuBox(
-                expanded = typeExpanded,
-                onExpandedChange = { typeExpanded = it }
+            Text(
+                text = "Account Type",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                OutlinedTextField(
-                    value = selectedType.name.replace("_", " "),
-                    onValueChange = {},
-                    label = { Text("Account Type") },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeExpanded) }
-                )
-                ExposedDropdownMenu(
-                    expanded = typeExpanded,
-                    onDismissRequest = { typeExpanded = false }
-                ) {
-                    AccountType.entries.forEach { type ->
-                        DropdownMenuItem(
-                            text = { Text(type.name.replace("_", " ")) },
-                            onClick = {
-                                selectedType = type
-                                typeExpanded = false
-                            },
-                            leadingIcon = {
-                                when (type) {
-                                    AccountType.CASH -> Icons.Default.AccountBalanceWallet
-                                    AccountType.BANK -> Icons.Default.AccountBalance
-                                    AccountType.CREDIT_CARD -> Icons.Default.CreditCard
-                                }.let { Icon(it, contentDescription = null) }
+                AccountType.entries.forEach { type ->
+                    FilterChip(
+                        selected = selectedType == type,
+                        onClick = { selectedType = type },
+                        label = { Text(type.name.replace("_", " ")) },
+                        leadingIcon = {
+                            when (type) {
+                                AccountType.CASH -> Icons.Default.AccountBalanceWallet
+                                AccountType.BANK -> Icons.Default.AccountBalance
+                                AccountType.CREDIT_CARD -> Icons.Default.CreditCard
+                            }.let { icon ->
+                                Icon(imageVector = icon, contentDescription = null)
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
 
