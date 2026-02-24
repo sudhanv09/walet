@@ -1,5 +1,9 @@
 package io.github.sudhanv09.presentation.transactions
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.text.format.DateFormat
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +17,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +52,12 @@ import io.github.sudhanv09.domain.model.Category
 import io.github.sudhanv09.domain.model.TransactionType
 import io.github.sudhanv09.presentation.common.AppButton
 import io.github.sudhanv09.presentation.common.CurrencyFormatter
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,6 +66,7 @@ fun AddTransactionScreen(
     onNavigateBack: () -> Unit,
     viewModel: TransactionsViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val accounts by viewModel.accounts.collectAsState()
     val categories by viewModel.categories.collectAsState()
     val selectedTransaction by viewModel.selectedTransaction.collectAsState()
@@ -65,10 +79,46 @@ fun AddTransactionScreen(
     var accountExpanded by remember { mutableStateOf(false) }
     var categoryExpanded by remember { mutableStateOf(false) }
     var showValidation by remember { mutableStateOf(false) }
+    var selectedDateTimeMillis by remember { mutableStateOf(System.currentTimeMillis()) }
 
     var toAccount by remember { mutableStateOf<Account?>(null) }
     var toAccountExpanded by remember { mutableStateOf(false) }
     var hasInitializedEditState by remember(transactionId) { mutableStateOf(false) }
+
+    val zoneId = remember { ZoneId.systemDefault() }
+    val dateFormatter = remember { DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.getDefault()) }
+    val timeFormatter = remember { DateTimeFormatter.ofPattern("hh:mm a", Locale.getDefault()) }
+
+    val openDatePicker = {
+        val currentDateTime = Instant.ofEpochMilli(selectedDateTimeMillis).atZone(zoneId).toLocalDateTime()
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                val updatedDateTime = LocalDateTime.of(
+                    LocalDate.of(year, month + 1, dayOfMonth),
+                    currentDateTime.toLocalTime()
+                )
+                selectedDateTimeMillis = updatedDateTime.atZone(zoneId).toInstant().toEpochMilli()
+            },
+            currentDateTime.year,
+            currentDateTime.monthValue - 1,
+            currentDateTime.dayOfMonth
+        ).show()
+    }
+
+    val openTimePicker = {
+        val currentDateTime = Instant.ofEpochMilli(selectedDateTimeMillis).atZone(zoneId).toLocalDateTime()
+        TimePickerDialog(
+            context,
+            { _, hourOfDay, minute ->
+                val updatedDateTime = currentDateTime.withHour(hourOfDay).withMinute(minute)
+                selectedDateTimeMillis = updatedDateTime.atZone(zoneId).toInstant().toEpochMilli()
+            },
+            currentDateTime.hour,
+            currentDateTime.minute,
+            DateFormat.is24HourFormat(context)
+        ).show()
+    }
 
     LaunchedEffect(transactionId) {
         if (transactionId != null) {
@@ -85,6 +135,7 @@ fun AddTransactionScreen(
         amount = transaction.amount.toString()
         description = transaction.description.orEmpty()
         selectedType = transaction.type
+        selectedDateTimeMillis = transaction.dateTime
         selectedAccount = accounts.find { it.id == transaction.accountId }
         selectedCategory = categories.find { it.id == transaction.categoryId }
         toAccount = transaction.toAccountId?.let { toId -> accounts.find { it.id == toId } }
@@ -146,6 +197,43 @@ fun AddTransactionScreen(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = formatDateTimeForInput(selectedDateTimeMillis, zoneId, dateFormatter),
+                    onValueChange = {},
+                    label = { Text("Date") },
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(onClick = openDatePicker),
+                    readOnly = true,
+                    singleLine = true,
+                    trailingIcon = {
+                        IconButton(onClick = openDatePicker) {
+                            Icon(Icons.Default.DateRange, contentDescription = "Select date")
+                        }
+                    }
+                )
+
+                OutlinedTextField(
+                    value = formatDateTimeForInput(selectedDateTimeMillis, zoneId, timeFormatter),
+                    onValueChange = {},
+                    label = { Text("Time") },
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(onClick = openTimePicker),
+                    readOnly = true,
+                    singleLine = true,
+                    trailingIcon = {
+                        IconButton(onClick = openTimePicker) {
+                            Icon(Icons.Default.AccessTime, contentDescription = "Select time")
+                        }
+                    }
+                )
+            }
 
             ExposedDropdownMenuBox(
                 expanded = accountExpanded,
@@ -273,6 +361,7 @@ fun AddTransactionScreen(
                     viewModel.saveTransaction(
                         id = transactionId ?: 0,
                         amount = amountValue,
+                        dateTime = selectedDateTimeMillis,
                         description = description.ifBlank { null },
                         photoUri = null,
                         categoryId = selectedCategory!!.id,
@@ -286,4 +375,15 @@ fun AddTransactionScreen(
             )
         }
     }
+}
+
+private fun formatDateTimeForInput(
+    timestamp: Long,
+    zoneId: ZoneId,
+    formatter: DateTimeFormatter
+): String {
+    return Instant.ofEpochMilli(timestamp)
+        .atZone(zoneId)
+        .toLocalDateTime()
+        .format(formatter)
 }

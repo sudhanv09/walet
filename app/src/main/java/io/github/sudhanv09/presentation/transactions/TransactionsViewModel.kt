@@ -56,6 +56,7 @@ class TransactionsViewModel @Inject constructor(
     fun saveTransaction(
         id: Long,
         amount: Double,
+        dateTime: Long,
         description: String?,
         photoUri: String?,
         categoryId: Long,
@@ -84,7 +85,7 @@ class TransactionsViewModel @Inject constructor(
             val transaction = Transaction(
                 id = id,
                 amount = amount,
-                dateTime = existingTransaction?.dateTime ?: System.currentTimeMillis(),
+                dateTime = dateTime,
                 description = description,
                 photoUri = photoUri,
                 categoryId = categoryId,
