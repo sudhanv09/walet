@@ -71,17 +71,6 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Welcome to Walet",
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Text(
-                text = "Your personal finance tracker",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
             Row(modifier = Modifier.fillMaxWidth()) {
                 AnalyticsCard(
                     title = "Income This Month",
