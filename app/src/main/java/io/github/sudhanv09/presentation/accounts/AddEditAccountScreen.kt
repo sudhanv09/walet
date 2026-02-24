@@ -29,6 +29,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -62,6 +64,8 @@ fun AddEditAccountScreen(
     onNavigateBack: () -> Unit,
     viewModel: AccountsViewModel = hiltViewModel()
 ) {
+    val selectedAccount by viewModel.selectedAccount.collectAsState()
+
     var name by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf(AccountType.CASH) }
     var balance by remember { mutableStateOf("") }
@@ -72,8 +76,29 @@ fun AddEditAccountScreen(
 
     var typeExpanded by remember { mutableStateOf(false) }
     var showValidation by remember { mutableStateOf(false) }
+    var hasInitializedEditState by remember(accountId) { mutableStateOf(false) }
 
     val isCreditCard = selectedType == AccountType.CREDIT_CARD
+
+    LaunchedEffect(accountId) {
+        if (accountId != null) {
+            viewModel.loadAccount(accountId)
+        }
+    }
+
+    LaunchedEffect(accountId, selectedAccount) {
+        if (accountId == null || hasInitializedEditState) return@LaunchedEffect
+        val account = selectedAccount ?: return@LaunchedEffect
+
+        name = account.name
+        selectedType = account.type
+        balance = if (account.balance == 0.0) "" else account.balance.toString()
+        selectedColor = account.color
+        creditLimit = account.creditLimit?.toString().orEmpty()
+        billingDate = account.billingDate?.toString().orEmpty()
+        isDefault = account.isDefault
+        hasInitializedEditState = true
+    }
 
     Scaffold(
         topBar = {
