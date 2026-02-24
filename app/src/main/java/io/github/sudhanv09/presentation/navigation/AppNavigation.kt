@@ -31,7 +31,6 @@ import io.github.sudhanv09.presentation.categories.CategoriesScreen
 import io.github.sudhanv09.presentation.home.HomeScreen
 import io.github.sudhanv09.presentation.more.MoreScreen
 import io.github.sudhanv09.presentation.transactions.AddTransactionScreen
-import io.github.sudhanv09.presentation.transactions.TransactionDetailScreen
 import io.github.sudhanv09.presentation.transactions.TransactionListScreen
 import io.github.sudhanv09.presentation.goals.AddEditGoalScreen
 import io.github.sudhanv09.presentation.goals.GoalDetailScreen
@@ -75,7 +74,7 @@ fun AppNavigation(
                 HomeScreen(
                     onNavigateToAccounts = { navController.navigate(Accounts) },
                     onNavigateToTransactions = { navController.navigate(Transactions) },
-                    onNavigateToAddTransaction = { navController.navigate(AddTransaction) }
+                    onNavigateToAddTransaction = { navController.navigate(AddTransaction()) }
                 )
             }
 
@@ -137,22 +136,16 @@ fun AppNavigation(
 
             composable<Transactions> {
             TransactionListScreen(
-                onNavigateToAddTransaction = { navController.navigate(AddTransaction) },
+                onNavigateToAddTransaction = { navController.navigate(AddTransaction()) },
                 onNavigateToTransactionDetail = { transactionId ->
-                    navController.navigate(TransactionDetail(transactionId))
+                    navController.navigate(AddTransaction(transactionId))
                 }
             )
         }
 
-            composable<AddTransaction> {
+            composable<AddTransaction> { backStackEntry ->
+            val route: AddTransaction = backStackEntry.toRoute()
             AddTransactionScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
-        }
-
-            composable<TransactionDetail> { backStackEntry ->
-            val route: TransactionDetail = backStackEntry.toRoute()
-            TransactionDetailScreen(
                 transactionId = route.transactionId,
                 onNavigateBack = { navController.popBackStack() }
             )

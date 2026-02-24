@@ -65,10 +65,26 @@ class TransactionsViewModel @Inject constructor(
         onSuccess: () -> Unit
     ) {
         viewModelScope.launch {
+            val existingTransaction = if (id != 0L) getTransactionByIdUseCase(id) else null
+
+            existingTransaction?.let { previous ->
+                val revertBalanceChange = when (previous.type) {
+                    TransactionType.EXPENSE -> previous.amount
+                    TransactionType.INCOME -> -previous.amount
+                    TransactionType.TRANSFER -> 0.0
+                }
+
+                accountRepository.updateBalance(previous.accountId, revertBalanceChange)
+
+                if (previous.type == TransactionType.TRANSFER && previous.toAccountId != null) {
+                    accountRepository.updateBalance(previous.toAccountId, -previous.amount)
+                }
+            }
+
             val transaction = Transaction(
                 id = id,
                 amount = amount,
-                dateTime = System.currentTimeMillis(),
+                dateTime = existingTransaction?.dateTime ?: System.currentTimeMillis(),
                 description = description,
                 photoUri = photoUri,
                 categoryId = categoryId,

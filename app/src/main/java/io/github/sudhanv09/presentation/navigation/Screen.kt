@@ -33,10 +33,7 @@ data class EditCategory(val categoryId: Long)
 object Transactions
 
 @Serializable
-object AddTransaction
-
-@Serializable
-data class TransactionDetail(val transactionId: Long)
+data class AddTransaction(val transactionId: Long? = null)
 
 @Serializable
 object Goals

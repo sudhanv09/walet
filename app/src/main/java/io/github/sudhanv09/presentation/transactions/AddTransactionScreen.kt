@@ -13,7 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -27,6 +27,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,22 +39,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import io.github.sudhanv09.domain.model.Account
 import io.github.sudhanv09.domain.model.Category
 import io.github.sudhanv09.domain.model.TransactionType
 import io.github.sudhanv09.presentation.common.AppButton
 import io.github.sudhanv09.presentation.common.CurrencyFormatter
-import androidx.compose.runtime.collectAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTransactionScreen(
+    transactionId: Long? = null,
     onNavigateBack: () -> Unit,
     viewModel: TransactionsViewModel = hiltViewModel()
 ) {
     val accounts by viewModel.accounts.collectAsState()
     val categories by viewModel.categories.collectAsState()
+    val selectedTransaction by viewModel.selectedTransaction.collectAsState()
 
     var amount by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -65,14 +68,36 @@ fun AddTransactionScreen(
 
     var toAccount by remember { mutableStateOf<Account?>(null) }
     var toAccountExpanded by remember { mutableStateOf(false) }
+    var hasInitializedEditState by remember(transactionId) { mutableStateOf(false) }
+
+    LaunchedEffect(transactionId) {
+        if (transactionId != null) {
+            viewModel.loadTransaction(transactionId)
+        } else {
+            viewModel.clearSelectedTransaction()
+        }
+    }
+
+    LaunchedEffect(transactionId, selectedTransaction, accounts, categories) {
+        if (transactionId == null || hasInitializedEditState) return@LaunchedEffect
+        val transaction = selectedTransaction ?: return@LaunchedEffect
+
+        amount = transaction.amount.toString()
+        description = transaction.description.orEmpty()
+        selectedType = transaction.type
+        selectedAccount = accounts.find { it.id == transaction.accountId }
+        selectedCategory = categories.find { it.id == transaction.categoryId }
+        toAccount = transaction.toAccountId?.let { toId -> accounts.find { it.id == toId } }
+        hasInitializedEditState = true
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Transaction") },
+                title = { Text(if (transactionId == null) "Add Transaction" else "Edit Transaction") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -131,8 +156,7 @@ fun AddTransactionScreen(
                     onValueChange = {},
                     label = { Text("Account") },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(),
+                        .fillMaxWidth(),
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = accountExpanded) },
                     isError = showValidation && selectedAccount == null
@@ -163,8 +187,7 @@ fun AddTransactionScreen(
                     onValueChange = {},
                     label = { Text("Category") },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(),
+                        .fillMaxWidth(),
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded) },
                     isError = showValidation && selectedCategory == null
@@ -212,8 +235,7 @@ fun AddTransactionScreen(
                         onValueChange = {},
                         label = { Text("To Account") },
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor(),
+                            .fillMaxWidth(),
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = toAccountExpanded) }
                     )
@@ -235,7 +257,7 @@ fun AddTransactionScreen(
             }
 
             AppButton(
-                text = "Save Transaction",
+                text = if (transactionId == null) "Save Transaction" else "Update Transaction",
                 onClick = {
                     val amountValue = amount.toDoubleOrNull()
                     if (amountValue == null || amountValue <= 0 || selectedAccount == null || selectedCategory == null) {
@@ -249,7 +271,7 @@ fun AddTransactionScreen(
                     }
 
                     viewModel.saveTransaction(
-                        id = 0,
+                        id = transactionId ?: 0,
                         amount = amountValue,
                         description = description.ifBlank { null },
                         photoUri = null,
