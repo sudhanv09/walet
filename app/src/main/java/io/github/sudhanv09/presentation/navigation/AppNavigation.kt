@@ -17,12 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.hasRoute
 import androidx.navigation.navOptions
 import androidx.navigation.toRoute
 import io.github.sudhanv09.presentation.accounts.AccountDetailScreen
@@ -249,11 +247,12 @@ private fun NavDestination?.isTopLevelDestination(): Boolean {
 }
 
 private fun NavDestination?.isRouteSelected(route: Any): Boolean {
+    val currentRoute = this?.route ?: return false
     return when (route) {
-        Home -> this?.hasRoute<Home>() == true
-        Transactions -> this?.hasRoute<Transactions>() == true
-        Accounts -> this?.hasRoute<Accounts>() == true
-        More -> this?.hasRoute<More>() == true
+        Home -> currentRoute.contains("Home")
+        Transactions -> currentRoute.contains("Transactions")
+        Accounts -> currentRoute.contains("Accounts")
+        More -> currentRoute.contains("More")
         else -> false
     }
 }
