@@ -1,7 +1,6 @@
 package io.github.sudhanv09.presentation.transactions
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +44,7 @@ import io.github.sudhanv09.presentation.common.AppTopBar
 import io.github.sudhanv09.presentation.common.CurrencyFormatter
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -79,7 +80,11 @@ private fun TransactionListScreenContent(
     val monthOptions = remember { monthsAroundCurrent(pastMonths = 60, futureMonths = 24) }
     var selectedMonth by remember { mutableStateOf(YearMonth.now()) }
     val monthLabelFormatter = remember { DateTimeFormatter.ofPattern("MMM yyyy", Locale.getDefault()) }
+    val dayHeaderFormatter = remember { DateTimeFormatter.ofPattern("EEE, MMM d", Locale.getDefault()) }
     val selectedMonthTransactions = transactions.filter { transactionYearMonth(it.dateTime) == selectedMonth }
+    val groupedTransactions = selectedMonthTransactions
+        .groupBy { transactionDate(it.dateTime) }
+        .toSortedMap(compareByDescending { it })
     val selectedTabIndex = monthOptions.indexOf(selectedMonth).let { if (it >= 0) it else monthOptions.lastIndex }
 
     Scaffold(
@@ -97,7 +102,7 @@ private fun TransactionListScreenContent(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            ScrollableTabRow(selectedTabIndex = selectedTabIndex) {
+            SecondaryScrollableTabRow(selectedTabIndex = selectedTabIndex) {
                 monthOptions.forEach { month ->
                     Tab(
                         selected = month == selectedMonth,
@@ -125,13 +130,26 @@ private fun TransactionListScreenContent(
                 }
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(selectedMonthTransactions, key = { it.id }) { transaction ->
-                        val category = categories.find { it.id == transaction.categoryId }
-                        TransactionItem(
-                            transaction = transaction,
-                            category = category,
-                            onClick = { onNavigateToTransactionDetail(transaction.id) }
-                        )
+                    groupedTransactions.forEach { (date, dayTransactions) ->
+                        item(key = "header-$date") {
+                            Text(
+                                text = date.format(dayHeaderFormatter),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
+                        }
+
+                        items(dayTransactions, key = { it.id }) { transaction ->
+                            val category = categories.find { it.id == transaction.categoryId }
+                            TransactionItem(
+                                transaction = transaction,
+                                category = category,
+                                onClick = { onNavigateToTransactionDetail(transaction.id) }
+                            )
+                        }
                     }
                 }
             }
@@ -150,6 +168,12 @@ private fun transactionYearMonth(timestamp: Long): YearMonth {
             .atZone(ZoneId.systemDefault())
             .toLocalDate()
     )
+}
+
+private fun transactionDate(timestamp: Long): LocalDate {
+    return Instant.ofEpochMilli(timestamp)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
 }
 
 @Composable
