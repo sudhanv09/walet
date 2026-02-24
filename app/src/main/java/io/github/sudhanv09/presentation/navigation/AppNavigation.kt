@@ -77,9 +77,6 @@ fun AppNavigation(
                 HomeScreen(
                     onNavigateToAccounts = { navController.navigate(Accounts) },
                     onNavigateToTransactions = { navController.navigate(Transactions) },
-                    onNavigateToCategories = { navController.navigate(Categories) },
-                    onNavigateToGoals = { navController.navigate(Goals) },
-                    onNavigateToSavingBuckets = { navController.navigate(SavingBuckets) },
                     onNavigateToAddTransaction = { navController.navigate(AddTransaction) }
                 )
             }
