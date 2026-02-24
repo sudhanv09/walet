@@ -1,6 +1,5 @@
 package io.github.sudhanv09.presentation.transactions
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,11 +30,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import io.github.sudhanv09.domain.model.Category
-import io.github.sudhanv09.domain.model.Transaction
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import io.github.sudhanv09.domain.model.TransactionType
 import io.github.sudhanv09.presentation.common.CurrencyFormatter
 import java.text.SimpleDateFormat

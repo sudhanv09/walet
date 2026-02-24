@@ -57,11 +57,7 @@ fun HomeScreen(
         .filter { it.type == TransactionType.EXPENSE && isInMonth(it.dateTime, currentMonth) }
         .sumOf { it.amount }
 
-    Scaffold(
-        topBar = {
-            AppTopBar(title = "Walet")
-        }
-    ) { padding ->
+    Scaffold { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
