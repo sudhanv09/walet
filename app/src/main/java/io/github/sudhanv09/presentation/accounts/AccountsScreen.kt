@@ -89,30 +89,6 @@ private fun AccountsScreenContent(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                item {
-                    val totalBalance = accounts.sumOf { it.balance }
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                text = "Total Balance",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Text(
-                                text = CurrencyFormatter.format(totalBalance),
-                                style = MaterialTheme.typography.headlineMedium
-                            )
-                        }
-                    }
-                }
 
                 items(accounts, key = { it.id }) { account ->
                     AccountItem(

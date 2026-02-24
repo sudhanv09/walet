@@ -102,15 +102,6 @@ fun AddEditCategoryScreen(
                 singleLine = true
             )
 
-            OutlinedTextField(
-                value = selectedType.name.replace("_", " "),
-                onValueChange = {},
-                label = { Text("Type") },
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true,
-                enabled = false
-            )
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)

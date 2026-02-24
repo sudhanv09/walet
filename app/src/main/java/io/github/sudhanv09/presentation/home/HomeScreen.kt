@@ -82,47 +82,6 @@ fun HomeScreen(
                     modifier = Modifier.weight(1f)
                 )
             }
-
-            if (accounts.isNotEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Total Balance",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = CurrencyFormatter.format(totalBalance),
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            Button(
-                onClick = onNavigateToAddTransaction,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Add Transaction")
-            }
-
-            Button(
-                onClick = onNavigateToTransactions,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("View Transactions")
-            }
-
-            OutlinedButton(
-                onClick = onNavigateToAccounts,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Manage Accounts")
-            }
         }
     }
 }

@@ -22,7 +22,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -184,7 +183,6 @@ private fun TransactionItem(
 ) {
     val isExpense = transaction.type == TransactionType.EXPENSE
     val isIncome = transaction.type == TransactionType.INCOME
-    val isTransfer = transaction.type == TransactionType.TRANSFER
 
     val amountColor = when {
         isExpense -> MaterialTheme.colorScheme.error
